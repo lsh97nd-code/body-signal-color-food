@@ -820,6 +820,24 @@ Timeout 시간: 15초
 
 Timeout 발생 시 Loading 상태를 종료하고 다시 요청할 수 있도록 버튼을 활성화한다. 
 
+
+### 8.6 AI 응답 지연 개선 방안
+
+현재 서비스는 AI 응답이 일정 시간 이상 지연되는 경우
+Frontend의 `AbortController`를 이용하여 15초 Timeout으로 처리한다.
+
+향후 사용자가 증가하거나 AI 응답 시간이 길어지는 경우 다음과 같은 방법을 고려할 수 있다.
+
+- **경량 모델 활용:** 응답 속도와 비용을 고려하여 비교적 빠른 AI 모델을 우선 사용한다.
+- **Prompt 및 입력 데이터 축소:** AI에 전달하는 불필요한 문장이나 중복 정보를 줄여 처리해야 할 입력량을 줄인다.
+- **정적 데이터 Cache:** 컬러푸드·Whole Food·Whole Grain과 같이 사용자마다 달라지지 않는 기본 정보는 반복해서 생성하지 않고 미리 정리된 데이터를 활용한다.
+- **결과 요약:** 필요 이상으로 긴 AI 응답을 생성하지 않고 현재 서비스에서 필요한 JSON 항목 중심으로 결과를 제한한다.
+- **Streaming 검토:** 향후 긴 설명을 제공하는 기능을 추가할 경우 전체 응답이 끝날 때까지 기다리지 않고 일부 결과부터 표시하는 Streaming 방식도 고려할 수 있다.
+
+단, 사용자의 몸 상태나 식생활 입력에 따라 달라지는 개인화된 AI 결과를 무조건 Cache하여 재사용하지 않고,
+정적인 참고 정보와 개인화된 결과를 구분하여 관리한다.
+
+
 ## 9. 안전한 화면 출력
 
 AI가 반환한 문자열을 `innerHTML`에 그대로 삽입하지 않고 `textContent` 등 안전한 방식으로 화면에 출력한다.
@@ -960,7 +978,7 @@ Frontend에서는 전달받은 결과를 확인하고 `textContent` 등을 이�
 
 ```bash
 
-git clone [실제 GitHub Repository URL]
+git clone https://github.com/lsh97nd-code/body-signal-color-food.git
 
 ```
 
@@ -1278,8 +1296,6 @@ Mobile에서는 Navigation, 입력 Form, 카드, 버튼 및 AI 결과가 화면 
 
 
 
-
-
 ## 18. Navigation
 
 상단 Navigation을 통해 Home, Body Signal, AI Food Guide, Color Guide, Whole Food, Whole Grain, Nutrition, About, FAQ 등의 주요 Page / Section으로 이동할 수 있도록 구성한다.
@@ -1297,82 +1313,107 @@ Color Guide에서는 Yellow·Purple·Red·Green 중 관심 있는 컬러를 선�
 ### Vercel 배포 URL
 
 ```text
-
-[실제 Vercel 배포 후 URL 입력]
-
+https://body-signal-color-food-lsfu-inky.vercel.app
 ```
 
 ### GitHub Repository
 
 ```text
-
-[실제 GitHub Repository URL 입력]
-
+https://github.com/lsh97nd-code/body-signal-color-food
 ```
 
 ### GitHub ↔ Vercel 연동
 
 프로젝트 코드는 GitHub Repository에서 관리하고 해당 Repository를 Vercel Project와 연결한다.
 
-코드를 수정한 후 Git Commit과 Push를 수행하면 연결된 Vercel에서 변경된 코드를 기준으로 새로운 배포가 자동으로 진행되도록 구성한다.
+코드를 수정한 후 Git Commit과 Push를 수행하면 연결된 Vercel에서 변경된 코드를 기준으로 새로운 배포가 진행되도록 구성한다.
 
 배포 과정에서 문제가 발생한 경우 다음 순서로 확인한다.
 
 ```text
-
 Deployments
-
-    ↓
-
+    ↓
 Build Logs
-
-    ↓
-
+    ↓
 Runtime Logs
-
-    ↓
-
+    ↓
 코드 및 환경변수 확인·수정
-
-    ↓
-
+    ↓
 Git Commit / Push
-
-    ↓
-
-자동 재배포
-
-    ↓
-
+    ↓
+재배포
+    ↓
 실제 Vercel URL에서 다시 검증
-
 ```
 
-## 20. 배포 환경 동작 확인
+### 실제 Vercel 배포 화면
 
-| 확인 항목 | 결과 |
+Vercel 배포가 완료된 뒤 실제 Production URL에 접속하여
+Main Page가 정상적으로 표시되는 것을 확인하였다.
 
-|---|---|
+![Vercel 실제 배포 Main Page](./images/39.%20VercelMainPage.jpg)
 
-| Page / Section 이동 | [실제 Vercel 배포 후 확인] |
+---
 
-| Desktop Layout | [실제 Vercel 배포 후 확인] |
+## 20. Vercel 배포 환경 검증
 
-| Mobile Layout | [실제 Vercel 배포 후 확인] |
+GitHub Repository와 Vercel을 연동하여 실제 웹 서비스를 배포한 뒤,
+Production 환경에서 Frontend와 Backend 및 AI 기능이 정상적으로 연동되는지 확인하였다.
 
-| 사용자 입력 | [실제 Vercel 배포 후 확인] |
+### Vercel AI 기능 실행 전
 
-| OpenAI API 호출 | [실제 Vercel 배포 후 확인] |
+실제 Vercel 배포 URL에서 다음과 같이 사용자 입력값을 설정하였다.
 
-| AI 결과 출력 | [실제 Vercel 배포 후 확인] |
+- 생활 속 이상 신호 등 몸 상태: `식사가 불규칙함`
+- 평소 과일·채소 섭취 정도: `충분함`
+- 평소 식생활 습관: `간편식이나 외식을 자주 이용함`
+- 알레르기 관련 정보: `없음`
+- 피하고 싶은 음식: `없음`
 
-| 빈 입력 Error | [실제 Vercel 배포 후 확인] |
+![Vercel AI 기능 실행 전](./images/40.%20VercelAIInput.png)
 
-| OpenAI API Error | [실제 Vercel 배포 후 확인] |
+### Vercel AI 기능 실행 결과
 
-| Timeout | [실제 Vercel 배포 후 확인] |
+`AI Food Guide 실행` 버튼을 눌러 실제 배포 환경에서 AI 기능을 실행한 결과,
+Backend의 `/api/recommend` 요청과 AI API 호출이 정상적으로 처리되고
+AI 식생활 안내 결과가 화면에 출력되는 것을 확인하였다.
 
-localhost에서 정상적으로 동작하는 것만으로 완료로 판단하지 않고, 실제 Vercel URL에서도 각 기능을 직접 확인한 후 결과를 기록한다.
+![Vercel AI 기능 실행 결과](./images/41.%20VercelAIResult.png)
+
+로컬 테스트에서는 동일한 입력에 대해 `Green`과 `키위`가 추천된 사례가 있었으며,
+Vercel 실제 배포 환경에서는 `Yellow`와 `감귤류`가 추천되었다.
+
+생성형 AI의 특성상 동일하거나 유사한 입력이라도 결과가 항상 동일하게 고정되지는 않으며,
+입력 내용을 바탕으로 추천 컬러푸드와 대표 식품이 달라질 수 있다.
+
+따라서 본 서비스의 AI 결과는 질병의 진단이나 치료를 위한 결과가 아니라
+사용자의 식생활을 살펴보기 위한 참고 정보로 활용한다.
+
+### Vercel Mobile 반응형 확인
+
+실제 Vercel Production URL을 Chrome 개발자 도구의 Responsive Mode에서
+Mobile 화면 크기 `390 × 844`로 설정하여 반응형 화면을 확인하였다.
+
+Main Page에서는 Desktop Navigation이 Hamburger Menu 형태로 전환되고,
+서비스 제목, 소개 문구와 주요 버튼이 모바일 화면 폭에 맞게 정상적으로 표시되는 것을 확인하였다.
+
+![Vercel Mobile Main Page](./images/42.%20VercelMobileMainPage.png)
+
+Hamburger Menu를 실행한 결과,
+Home, Body Signal, AI Food Guide, Color Guide, Whole Food, Whole Grain,
+Nutrition, My Foods, About, FAQ Menu가 모바일 화면 안에서 정상적으로 표시되는 것을 확인하였다.
+
+![Vercel Mobile Menu](./images/43.%20VercelMobileMenu.png)
+
+Body Signal 및 AI Food Guide 입력 영역도 모바일 화면에서 한 열 구조로 표시되며,
+Checkbox, 직접 입력 영역, 선택 항목 등 주요 사용자 입력 요소가 화면 밖으로 벗어나지 않고
+정상적으로 배치되는 것을 확인하였다.
+
+![Vercel Mobile AI Food Guide](./images/44.%20VercelMobileAIFoodGuide.png)
+
+이를 통해 실제 Vercel Production 환경에서도
+Desktop뿐만 아니라 Mobile `390 × 844` 환경에서
+Navigation과 주요 사용자 입력 화면이 정상적으로 동작하는 것을 확인하였다.
 
 ## 21. 테스트 Case
 
@@ -1630,3 +1671,110 @@ AI는 이러한 기본 정보를 임의로 변경하거나 새로운 건강 사�
 AI는 사용자가 입력한 생활 속 이상 신호 등 몸 상태와 식생활 습관을 바탕으로 미리 정리된 정보 중 참고할 컬러푸드와 대표 식품을 선택하고, 해당 식품을 추천하는 이유와 사용자가 이해하기 쉬운 식생활 안내 문구를 생성하는 역할을 담당한다.
 
 건강과 관련된 정보는 특정 식품이 특정 질병을 예방하거나 치료한다고 단정하지 않고, 건강한 식생활을 위한 참고 정보로 제공한다.
+
+
+## 23. 개발 및 배포 과정
+
+프로젝트 구현 과정에서 로컬 실행, GitHub Repository 구성,
+Vercel 연동 및 실제 Production 배포까지 단계별로 확인하였다.
+
+작업 과정에서 발생한 오류는 단순히 코드를 반복 수정하는 방식이 아니라
+오류가 발생한 위치와 Log를 먼저 확인한 뒤 원인을 구분하여 해결하였다.
+
+### Vercel 배포 및 실제 환경 확인
+
+Vercel 배포가 완료된 뒤 Dashboard에서 Production Deployment 상태가 `Ready`로 표시되고,
+`main` Branch의 최신 Commit이 실제 Production 환경에 반영된 것을 확인하였다.
+
+![Vercel Deployment 성공](./images/work-process/09.%20VercelDeploymentSuccess.jpg)
+
+![Vercel Dashboard Deployment Ready](./images/work-process/10.%20VercelDashboardDeploymentReady.jpg)
+
+실제 Vercel Production URL을 Browser에서 열고 DevTools를 이용하여
+Desktop과 Mobile 반응형 화면을 추가로 확인하였다.
+
+![Vercel Responsive Desktop 확인](./images/work-process/11.%20VercelResponsiveDesktopCheck.jpg)
+
+### 주요 오류 및 해결 과정
+
+| 문제 | 원인 | 해결 방법 |
+|---|---|---|
+| `fatal: not a git repository` | 프로젝트가 Git Repository로 초기화되지 않음 | `git init` 실행 후 `main` branch 구성 |
+| `Author identity unknown` | Git 사용자 정보 미설정 | `user.name`, `user.email` 설정 |
+| `Invalid username or token` | GitHub HTTPS 인증 정보 문제 | Fine-grained Personal Access Token 발급 및 사용 |
+| `main -> main (fetch first)` | 원격과 로컬 Git 이력 불일치 | 원격 상태 확인 후 `--force-with-lease`로 완성본 반영 |
+| Vercel Build 실패 | `pyproject.toml`에 `[project]` 정보가 없음 | Python Project Metadata와 Dependencies 추가 후 재배포 |
+| GitHub Repository Import 불가 | Vercel GitHub App 권한 미설정 | 해당 Repository에 GitHub App 접근 권한 부여 |
+
+### 기능 확장 시 고려사항
+
+현재 프로젝트는 HTML·CSS·JavaScript Frontend와 FastAPI 기반 Python Backend를 분리하여 구성하였다.
+
+향후 기능이 증가하는 경우 하나의 파일에 모든 기능을 계속 추가하기보다
+입력 검증, AI 요청, 응답 검증, 식생활 기준 데이터 등의 역할을 기능별로 분리하여 관리하는 방식을 고려한다.
+
+#### 모듈화
+
+- AI 요청 처리와 입력 검증 로직을 기능별로 분리한다.
+- 컬러푸드·Whole Food·Whole Grain 등의 기준 데이터도 별도 모듈 또는 데이터 파일로 관리할 수 있다.
+- 기능이 추가되더라도 기존 기능 전체를 수정하지 않고 필요한 부분만 변경할 수 있도록 구성한다.
+
+#### 성능
+
+Vercel Serverless 환경에서는 요청이 있을 때 Backend Function이 실행되므로,
+불필요하게 큰 Package나 지나치게 긴 AI 요청이 증가하면 실행 시간과 응답 시간이 길어질 수 있다.
+
+따라서 필요한 Package만 유지하고 AI에 전달하는 입력과 출력 크기를 적절하게 제한하며,
+반복해서 사용할 수 있는 정적 정보는 매번 AI가 다시 생성하지 않도록 구성하는 방법을 고려한다.
+
+#### 보안
+
+기능이 확장되더라도 API Key는 Frontend에 전달하지 않고
+Python Backend와 Vercel Environment Variables에서만 사용한다.
+
+새로운 API 또는 외부 서비스를 추가하는 경우에도 각각의 Key를 환경변수로 분리하여 관리하고,
+Frontend와 Backend의 입력값 검증을 유지한다.
+
+API Key 유출이 의심되는 경우에는 기존 Key를 즉시 폐기하고 새로운 Key를 발급하며,
+Vercel Environment Variables를 변경한 뒤 다시 배포한다.
+
+또한 Log에 API Key나 사용자의 전체 입력값과 같은 민감한 정보가 그대로 기록되지 않도록 관리한다.
+
+### 작업 과정 증빙
+
+작업 과정과 오류 해결 과정은 `images/work-process/` 폴더에 별도로 정리하였다.
+
+![GitHub PAT 설정](./images/work-process/01.%20GitHubPAT설정.jpg)
+
+![Local Desktop 정상 확인](./images/work-process/02.%20LocalDesktop정상확인.jpg)
+
+![Local Mobile 390x844 확인](./images/work-process/03.%20LocalMobile390x844확인.jpg)
+
+![Vercel New Project](./images/work-process/04.%20VercelNewProject.jpg)
+
+![Vercel GitHub App 설정](./images/work-process/05.%20VercelGitHubApp설정.jpg)
+
+![Vercel GitHub Repository 연동](./images/work-process/06.%20VercelGitHubRepository연동.jpg)
+
+![Vercel FastAPI Project 설정](./images/work-process/07.%20VercelFastAPIProject설정.jpg)
+
+![Vercel Environment Variable 설정](./images/work-process/08.%20VercelEnvironmentVariable설정.jpg)
+
+![Vercel Deployment 성공](./images/work-process/09.%20VercelDeploymentSuccess.jpg)
+
+![Vercel Dashboard Deployment Ready](./images/work-process/10.%20VercelDashboardDeploymentReady.jpg)
+
+![Vercel Responsive Desktop 확인](./images/work-process/11.%20VercelResponsiveDesktopCheck.jpg)
+
+### AI 코딩 도구 사용 과정 증빙
+
+개발 과정에서 AI와의 대화를 통해 GitHub 인증, Vercel 연동,
+Environment Variable 설정, 배포 확인 및 Mobile 반응형 검증 방법 등을 확인하였다.
+
+AI와의 전체 작업 과정 Screenshot은 `images/ai-coding-process/` 폴더에 정리하였다.
+
+![Vercel GitHub Import 안내](./images/ai-coding-process/03.%20VercelGitHubImport안내.jpg)
+
+![Vercel Environment Variable 확인](./images/ai-coding-process/06.%20VercelEnvironmentVariable확인.jpg)
+
+![Vercel Mobile 390x844 검증 방법](./images/ai-coding-process/11.%20VercelMobile390x844검증방법.jpg)
