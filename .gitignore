@@ -1,0 +1,18 @@
+# 실제 API Key가 들어 있는 환경변수 파일
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.pyc
+
+# Python 가상환경
+.venv/
+.venv-wsl/
+
+# Vercel
+.vercel/
+
+# 기타
+.DS_Store
