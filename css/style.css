@@ -15,6 +15,11 @@
   --color-border: #e5e5e5;
   --color-border-button: #cfd8cf;
 
+  /* 정보 카드 */
+  --color-info-card-border: rgba(45, 45, 45, 0.12);
+  --color-info-card-bg: rgba(255, 255, 255, 0.84);
+  --color-info-note-bg: rgba(255, 255, 255, 0.7);
+
   /* Navigation */
   --color-bg-hover: #f2f5f2;
   --color-bg-active: #e8f3e8;
@@ -809,7 +814,7 @@ fieldset.form-group label {
 
   gap: 10px;
 
-  margin: 0 0 10px;
+  margin: 0;
 
   padding: 12px 14px;
 
@@ -828,7 +833,19 @@ fieldset.form-group label {
 }
 
 
-fieldset.form-group label:last-child {
+.checkbox-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+
+.checkbox-list li {
+  margin: 0 0 10px;
+}
+
+
+.checkbox-list li:last-child {
   margin-bottom: 0;
 }
 
@@ -1398,7 +1415,7 @@ textarea:focus {
 
 /* 오늘의 추천 컬러푸드 */
 
-.result-card:first-child {
+.result-card--featured {
   border-color: var(--color-notice-border);
 
   background:
@@ -1412,7 +1429,7 @@ textarea:focus {
 
 /* 대표 식품 */
 
-.result-card:nth-child(2) {
+.result-card--food {
   border-color: var(--color-border-button);
 }
 
@@ -1421,10 +1438,7 @@ textarea:focus {
    긴 내용 카드
 ======================================== */
 
-.result-card:nth-child(3),
-.result-card:nth-child(6),
-.result-card:nth-child(7),
-.result-card:nth-child(8) {
+.result-card--full {
   grid-column: 1 / -1;
 }
 
@@ -1486,10 +1500,7 @@ textarea:focus {
 
 
   .result-card,
-  .result-card:nth-child(3),
-  .result-card:nth-child(6),
-  .result-card:nth-child(7),
-  .result-card:nth-child(8) {
+  .result-card--full {
     grid-column: auto;
   }
 
@@ -1841,6 +1852,110 @@ textarea:focus {
 
 #green::after {
   background: var(--green-light);
+}
+
+
+
+/* Color 이름이 카드만 보아도 구분되도록 제목과 보조정보를 함께 강조한다. */
+
+.color-card-meta {
+  display: block;
+  margin-top: 12px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.color-card[href="#yellow"] h3 {
+  color: var(--yellow-dark);
+}
+
+.color-card[href="#purple"] h3 {
+  color: var(--purple-dark);
+}
+
+.color-card[href="#red"] h3 {
+  color: var(--red-dark);
+}
+
+.color-card[href="#green"] h3 {
+  color: var(--green-dark);
+}
+
+
+/* ========================================
+   Color Detail Information
+======================================== */
+
+.color-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.color-info-card {
+  min-height: 190px;
+  padding: 22px;
+  border: 1px solid
+    var(--color-info-card-border);
+  border-radius: 14px;
+  background:
+    var(--color-info-card-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.color-info-card h3 {
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.color-info-card p,
+.color-info-card ul {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.color-info-card ul {
+  padding-left: 1.2rem;
+}
+
+.color-info-card li + li {
+  margin-top: 7px;
+}
+
+.color-section .container .food-info-note {
+  max-width: 780px;
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-left: 4px solid
+    var(--color-border-button);
+  border-radius: 8px;
+  background:
+    var(--color-info-note-bg);
+  font-size: 0.9rem;
+}
+
+/*
+  Breakpoints used in this file:
+  - 900px: tablet / navigation
+  - 760px: compact tablet / content grids
+  - 520px: small mobile
+*/
+@media (max-width: 760px) {
+  .color-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .color-info-card {
+    min-height: auto;
+  }
 }
 
 
@@ -2313,6 +2428,74 @@ textarea:focus {
 }
 
 
+/* My Foods 저장 카드 개별 삭제 (현재 테마 색상과 독립) */
+.saved-food-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.saved-food-delete-button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-error-border);
+  border-radius: 8px;
+  background: var(--color-background);
+  color: var(--color-error-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.saved-food-delete-button:hover {
+  background: var(--color-error-bg);
+}
+
+.saved-food-delete-button:focus-visible {
+  outline: 2px solid var(--color-error-text);
+  outline-offset: 3px;
+}
+
+/* 삭제 확인 후 최근 한 건 취소 / 복원 안내 */
+.saved-food-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 18px;
+  margin: 0 0 16px;
+  border: 1px solid var(--color-notice-border);
+  border-radius: 12px;
+  background: var(--color-notice-bg);
+  color: var(--color-notice-text);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.saved-food-undo-button {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  color: var(--color-active-text);
+  background: var(--color-background);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.saved-food-undo-button:hover {
+  background: var(--color-bg-active);
+}
+
+.saved-food-undo-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
 /* My Foods가 비어 있을 때 */
 
 .saved-foods-empty,
@@ -2604,3 +2787,70 @@ textarea:focus {
   }
 
 }
+
+/* ========================================
+   AI Result Color Theme (priority 3)
+   추천 결과 영역에만 적용. Dark mode와 무관.
+======================================== */
+
+.result-section[data-color-theme="yellow"] {
+  --result-theme-bg: var(--yellow-bg-section);
+  --result-theme-card: var(--yellow-bg-card);
+  --result-theme-border: var(--yellow-light);
+  --result-theme-text: var(--yellow-dark);
+  --result-theme-accent: var(--yellow-primary);
+}
+
+.result-section[data-color-theme="purple"] {
+  --result-theme-bg: var(--purple-bg-section);
+  --result-theme-card: var(--purple-bg-card);
+  --result-theme-border: var(--purple-light);
+  --result-theme-text: var(--purple-dark);
+  --result-theme-accent: var(--purple-primary);
+}
+
+.result-section[data-color-theme="red"] {
+  --result-theme-bg: var(--red-bg-section);
+  --result-theme-card: var(--red-bg-card);
+  --result-theme-border: var(--red-light);
+  --result-theme-text: var(--red-dark);
+  --result-theme-accent: var(--red-primary);
+}
+
+.result-section[data-color-theme="green"] {
+  --result-theme-bg: var(--green-bg-section);
+  --result-theme-card: var(--green-bg-card);
+  --result-theme-border: var(--green-light);
+  --result-theme-text: var(--green-dark);
+  --result-theme-accent: var(--green-primary);
+}
+
+.result-section[data-color-theme] {
+  background: var(--result-theme-bg);
+}
+
+.result-section[data-color-theme] .section-label,
+.result-section[data-color-theme] .result-card:not(.health-notice-card) h3,
+.result-section[data-color-theme] #resultColor {
+  color: var(--result-theme-text);
+}
+
+.result-section[data-color-theme] #resultColor {
+  font-weight: 800;
+}
+
+.result-section[data-color-theme] .result-card--featured {
+  border-color: var(--result-theme-border);
+  border-left: 5px solid var(--result-theme-accent);
+  background: linear-gradient(
+    135deg,
+    var(--result-theme-card) 0%,
+    var(--color-background) 100%
+  );
+}
+
+.result-section[data-color-theme] .result-card--food {
+  border-color: var(--result-theme-border);
+}
+
+/* 기존 .health-notice-card는 색상 변경 대상에서 제외한다. */

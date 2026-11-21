@@ -531,6 +531,7 @@ function setLoading(isLoading) {
 function hideResult() {
   if (resultSection) {
     resultSection.hidden = true;
+    resultSection.removeAttribute("data-color-theme");
   }
 }
 
@@ -778,6 +779,10 @@ function renderResult(data) {
     );
   }
 
+  if (!ALLOWED_COLORS.has(data.recommended_color)) {
+    throw new Error("허용되지 않은 추천 컬러푸드입니다.");
+  }
+
   resultColor.textContent =
     data.recommended_color;
 
@@ -833,6 +838,10 @@ function renderResult(data) {
   };
 
   resetSaveButton();
+
+  // API 결과의 Color를 결과 영역에만 적용한다.
+  resultSection.dataset.colorTheme =
+    data.recommended_color.toLowerCase();
 
   resultSection.hidden = false;
 }
@@ -1125,6 +1134,130 @@ function saveSavedFoods(items) {
 }
 
 
+// 최근 삭제한 한 건은 이 페이지가 열려 있는 동안만 취소할 수 있다.
+// 민감한 식생활 정보의 별도 영구 사본은 만들지 않는다.
+let lastDeletedFood = null;
+let myFoodsFeedback = null;
+
+
+function restoreLastDeletedFood() {
+  if (!lastDeletedFood) {
+    return;
+  }
+
+  const { item, index } = lastDeletedFood;
+  const savedFoods = loadSavedFoods();
+  const targetKey = createRecommendationKey(item);
+  const targetDate = item.saved_at ?? "";
+
+  // 다른 탭에서 이미 되돌렸다면 중복 저장하지 않는다.
+  const alreadySaved = savedFoods.some((saved) =>
+    createRecommendationKey(saved) === targetKey
+    && (saved.saved_at ?? "") === targetDate
+  );
+
+  if (alreadySaved) {
+    lastDeletedFood = null;
+    myFoodsFeedback = `${item.recommended_color} · ${item.representative_food}가 이미 저장되어 있습니다.`;
+    renderSavedFoods(savedFoods);
+    updateSaveButtonState(savedFoods);
+    return;
+  }
+
+  // 복원 때문에 다른 항목이 조용히 밀려나 삭제되는 것을 방지한다.
+  if (savedFoods.length >= MAX_SAVED_FOODS) {
+    window.alert("저장 공간이 가득 찼습니다. 다른 항목을 정리한 뒤 삭제 취소를 다시 눌러 주세요.");
+    return;
+  }
+
+  const restored = [...savedFoods];
+  restored.splice(Math.min(index, restored.length), 0, item);
+
+  try {
+    saveSavedFoods(restored);
+  } catch (error) {
+    console.warn("My Foods Restore Error:", error?.name ?? "UnknownError");
+    window.alert("식품을 복원하지 못했습니다. 다시 시도해 주세요.");
+    return;
+  }
+
+  lastDeletedFood = null;
+  myFoodsFeedback = `${item.recommended_color} · ${item.representative_food}가 복원되었습니다.`;
+  renderSavedFoods(restored);
+  updateSaveButtonState(restored);
+}
+
+
+function renderMyFoodsFeedback() {
+  if (!savedFoodsContainer || (!lastDeletedFood && !myFoodsFeedback)) {
+    return;
+  }
+
+  const notice = document.createElement("div");
+  notice.className = "saved-food-feedback";
+  notice.setAttribute("role", "status");
+  notice.setAttribute("aria-live", "polite");
+
+  const message = document.createElement("span");
+  message.textContent = lastDeletedFood
+    ? `${lastDeletedFood.item.recommended_color} · ${lastDeletedFood.item.representative_food}를 삭제했습니다.`
+    : myFoodsFeedback;
+  notice.appendChild(message);
+
+  if (lastDeletedFood) {
+    const undoButton = document.createElement("button");
+    undoButton.type = "button";
+    undoButton.className = "saved-food-undo-button";
+    undoButton.textContent = "삭제 취소";
+    undoButton.addEventListener("click", restoreLastDeletedFood);
+    notice.appendChild(undoButton);
+  }
+
+  savedFoodsContainer.appendChild(notice);
+}
+
+
+function deleteSavedFood(item) {
+  const savedFoods = loadSavedFoods();
+  const targetKey = createRecommendationKey(item);
+  const targetDate = item.saved_at ?? "";
+
+  const targetIndex = savedFoods.findIndex((saved) =>
+    createRecommendationKey(saved) === targetKey
+    && (saved.saved_at ?? "") === targetDate
+  );
+
+  if (targetIndex < 0) {
+    // 다른 탭에서 이미 삭제된 경우 화면만 최신화한다.
+    renderSavedFoods(savedFoods);
+    updateSaveButtonState(savedFoods);
+    return;
+  }
+
+  // 브라우저 기본 확인창. 버튼 이름은 브라우저 언어에 따라 '확인/취소' 등으로 표시된다.
+  if (!window.confirm(
+    `${item.recommended_color} · ${item.representative_food}를 삭제하시겠습니까?`
+  )) {
+    return;
+  }
+
+  const nextSavedFoods = savedFoods.filter((_, index) => index !== targetIndex);
+
+  try {
+    saveSavedFoods(nextSavedFoods);
+  } catch (error) {
+    console.warn("My Foods Delete Error:", error?.name ?? "UnknownError");
+    window.alert("저장한 식품을 삭제하지 못했습니다. 다시 시도해 주세요.");
+    return;
+  }
+
+  lastDeletedFood = { item: { ...savedFoods[targetIndex] }, index: targetIndex };
+  myFoodsFeedback = null;
+  renderSavedFoods(nextSavedFoods);
+  updateSaveButtonState(nextSavedFoods);
+}
+
+
 function createSavedFoodCard(item) {
   const article =
     document.createElement(
@@ -1178,6 +1311,26 @@ function createSavedFoodCard(item) {
     }
   }
 
+  // 저장 목록의 각 카드에만 삭제 버튼을 추가한다.
+  const actions = document.createElement("div");
+  actions.className = "saved-food-actions";
+
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "saved-food-delete-button";
+  deleteButton.textContent = "삭제";
+  deleteButton.setAttribute(
+    "aria-label",
+    `${item.recommended_color} · ${item.representative_food} 저장 목록에서 삭제`
+  );
+  deleteButton.addEventListener(
+    "click",
+    () => deleteSavedFood(item)
+  );
+
+  actions.appendChild(deleteButton);
+  article.appendChild(actions);
+
   return article;
 }
 
@@ -1190,6 +1343,7 @@ function renderSavedFoods(
   }
 
   savedFoodsContainer.replaceChildren();
+  renderMyFoodsFeedback();
 
   if (savedFoods.length === 0) {
     const emptyMessage =

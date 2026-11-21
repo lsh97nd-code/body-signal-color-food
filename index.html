@@ -9,6 +9,17 @@
     content="생활 속 이상 신호 등 몸 상태와 식생활 습관을 입력하면 AI가 컬러푸드·Whole Food·Whole Grain 정보를 바탕으로 건강한 식생활에 참고할 정보를 안내합니다."
   >
 
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="오늘의 몸 신호, AI 컬러푸드 가이드">
+  <meta
+    property="og:description"
+    content="생활 속 이상 신호 등 몸 상태와 식생활 습관을 입력하면 AI가 건강한 식생활에 참고할 정보를 안내합니다."
+  >
+  <meta
+    property="og:url"
+    content="https://body-signal-color-food-lsfu-inky.vercel.app"
+  >
+
   <title>오늘의 몸 신호, AI 컬러푸드 가이드</title>
 
   <link rel="stylesheet" href="css/style.css">
@@ -59,14 +70,14 @@
     <!-- ========================================
          01. Home
     ========================================= -->
-    <section id="home" class="section home-section">
+    <section id="home" class="section home-section" aria-labelledby="homeHeading">
       <div class="container">
 
         <p class="section-label">
           AI Color Food Guide
         </p>
 
-        <h1>
+        <h1 id="homeHeading">
           오늘의 몸 신호,<br>
           AI 컬러푸드 가이드
         </h1>
@@ -100,7 +111,7 @@
     <!-- ========================================
          02. Body Signal
     ========================================= -->
-    <section id="body-signal" class="section body-signal-section">
+    <section id="body-signal" class="section body-signal-section" aria-labelledby="bodySignalHeading">
       <div class="container">
 
         <div class="section-heading">
@@ -109,7 +120,7 @@
             Body Signal
           </p>
 
-          <h2>
+          <h2 id="bodySignalHeading">
             오늘의 몸 상태를 알려주세요
           </h2>
 
@@ -129,74 +140,85 @@
               생활 속 이상 신호 등 몸 상태
             </legend>
 
-            <p class="input-help">
+            <p class="input-help" id="bodySignalHelp">
               해당하는 항목을 하나 이상 선택하거나 기타 상태를 직접 입력해 주세요.
             </p>
 
-            <label for="signal-fatigue">
+            <ul
+              class="checkbox-list"
+              aria-describedby="bodySignalHelp"
+            >
+              <li>
+              <label for="signal-fatigue">
 
-              <input
-                type="checkbox"
-                id="signal-fatigue"
-                name="bodySignals"
-                value="피로감을 자주 느낌"
-              >
+                <input
+                  type="checkbox"
+                  id="signal-fatigue"
+                  name="bodySignals"
+                  value="피로감을 자주 느낌"
+                >
 
-              피로감을 자주 느낌
+                피로감을 자주 느낌
 
-            </label>
+              </label>
+              </li>
+              <li>
+              <label for="signal-bowel">
 
-            <label for="signal-bowel">
+                <input
+                  type="checkbox"
+                  id="signal-bowel"
+                  name="bodySignals"
+                  value="배변이 불편함"
+                >
 
-              <input
-                type="checkbox"
-                id="signal-bowel"
-                name="bodySignals"
-                value="배변이 불편함"
-              >
+                배변이 불편함
 
-              배변이 불편함
+              </label>
+              </li>
+              <li>
+              <label for="signal-irregular-meals">
 
-            </label>
+                <input
+                  type="checkbox"
+                  id="signal-irregular-meals"
+                  name="bodySignals"
+                  value="식사가 불규칙함"
+                >
 
-            <label for="signal-irregular-meals">
+                식사가 불규칙함
 
-              <input
-                type="checkbox"
-                id="signal-irregular-meals"
-                name="bodySignals"
-                value="식사가 불규칙함"
-              >
+              </label>
+              </li>
+              <li>
+              <label for="signal-low-produce">
 
-              식사가 불규칙함
+                <input
+                  type="checkbox"
+                  id="signal-low-produce"
+                  name="bodySignals"
+                  value="과일·채소 섭취가 부족함"
+                >
 
-            </label>
+                과일·채소 섭취가 부족함
 
-            <label for="signal-low-produce">
+              </label>
+              </li>
+              <li>
+              <label for="signal-digestion">
 
-              <input
-                type="checkbox"
-                id="signal-low-produce"
-                name="bodySignals"
-                value="과일·채소 섭취가 부족함"
-              >
+                <input
+                  type="checkbox"
+                  id="signal-digestion"
+                  name="bodySignals"
+                  value="소화가 부담스러움"
+                >
 
-              과일·채소 섭취가 부족함
+                소화가 부담스러움
 
-            </label>
-
-            <label for="signal-digestion">
-
-              <input
-                type="checkbox"
-                id="signal-digestion"
-                name="bodySignals"
-                value="소화가 부담스러움"
-              >
-
-              소화가 부담스러움
-
-            </label>
+              </label>
+              </li>
+            </ul>
 
           </fieldset>
 
@@ -235,7 +257,7 @@
               name="fruitVegetableIntake"
             >
 
-              <option value="" disabled selected>
+              <option value="" disabled selected hidden>
                 선택해 주세요
               </option>
 
@@ -268,7 +290,7 @@
               name="eatingHabits"
             >
 
-              <option value="" disabled selected>
+              <option value="" disabled selected hidden>
                 선택해 주세요
               </option>
 
@@ -352,6 +374,7 @@
             id="formError"
             class="form-message error-message"
             role="alert"
+            tabindex="-1"
             hidden
           ></p>
 
@@ -374,7 +397,7 @@
     <!-- ========================================
          03. AI Food Guide
     ========================================= -->
-    <section id="ai-food-guide" class="section ai-guide-section">
+    <section id="ai-food-guide" class="section ai-guide-section" aria-labelledby="aiFoodGuideHeading">
       <div class="container">
 
         <div class="section-heading">
@@ -383,7 +406,7 @@
             AI Food Guide
           </p>
 
-          <h2>
+          <h2 id="aiFoodGuideHeading">
             AI가 식생활 정보를 정리합니다
           </h2>
 
@@ -433,6 +456,7 @@
     <section
       id="result"
       class="section result-section"
+      aria-labelledby="resultHeading"
       hidden
     >
 
@@ -444,7 +468,7 @@
             Result
           </p>
 
-          <h2>
+          <h2 id="resultHeading">
             오늘의 AI 식생활 안내서
           </h2>
 
@@ -454,7 +478,7 @@
         <div id="resultContent">
 
           <article
-            class="result-card"
+            class="result-card result-card--featured"
             aria-labelledby="resultColorLabel"
           >
 
@@ -468,7 +492,7 @@
 
 
           <article
-            class="result-card"
+            class="result-card result-card--food"
             aria-labelledby="resultFoodLabel"
           >
 
@@ -482,7 +506,7 @@
 
 
           <article
-            class="result-card"
+            class="result-card result-card--full"
             aria-labelledby="resultReasonLabel"
           >
 
@@ -524,7 +548,7 @@
 
 
           <article
-            class="result-card"
+            class="result-card result-card--full"
             aria-labelledby="resultFoodGuideLabel"
           >
 
@@ -538,7 +562,7 @@
 
 
           <article
-            class="result-card"
+            class="result-card result-card--full"
             aria-labelledby="resultCautionLabel"
           >
 
@@ -552,7 +576,7 @@
 
 
           <article
-            class="result-card health-notice-card"
+            class="result-card result-card--full health-notice-card"
             aria-labelledby="resultHealthNoticeLabel"
           >
 
@@ -582,14 +606,14 @@
     <!-- ========================================
          05. Color Guide
     ========================================= -->
-    <section id="color-guide" class="section">
+    <section id="color-guide" class="section" aria-labelledby="colorGuideHeading">
       <div class="container">
 
         <p class="section-label">
           Color Guide
         </p>
 
-        <h2>
+        <h2 id="colorGuideHeading">
           컬러푸드 한눈에 보기
         </h2>
 
@@ -601,7 +625,11 @@
 
         <div class="color-card-list">
 
-          <a href="#yellow" class="color-card">
+          <a
+            href="#yellow"
+            class="color-card"
+            aria-label="Yellow 컬러푸드 자세히 보기"
+          >
 
             <h3>
               Yellow
@@ -611,10 +639,18 @@
               레몬 · 감귤류
             </p>
 
+            <span class="color-card-meta">
+              비타민 C · 플라보노이드
+            </span>
+
           </a>
 
 
-          <a href="#purple" class="color-card">
+          <a
+            href="#purple"
+            class="color-card"
+            aria-label="Purple 컬러푸드 자세히 보기"
+          >
 
             <h3>
               Purple
@@ -624,10 +660,18 @@
               블루베리 · 포도
             </p>
 
+            <span class="color-card-meta">
+              안토시아닌
+            </span>
+
           </a>
 
 
-          <a href="#red" class="color-card">
+          <a
+            href="#red"
+            class="color-card"
+            aria-label="Red 컬러푸드 자세히 보기"
+          >
 
             <h3>
               Red
@@ -637,10 +681,18 @@
               체리 · 복분자 · 토마토 · 사과
             </p>
 
+            <span class="color-card-meta">
+              안토시아닌 · 라이코펜
+            </span>
+
           </a>
 
 
-          <a href="#green" class="color-card">
+          <a
+            href="#green"
+            class="color-card"
+            aria-label="Green 컬러푸드 자세히 보기"
+          >
 
             <h3>
               Green
@@ -649,6 +701,10 @@
             <p>
               키위 · 아보카도 · 멜론
             </p>
+
+            <span class="color-card-meta">
+              비타민 C · 식이섬유 · 엽산
+            </span>
 
           </a>
 
@@ -661,19 +717,47 @@
     <!-- ========================================
          06. Yellow
     ========================================= -->
-    <section id="yellow" class="section color-section">
+    <section id="yellow" class="section color-section" aria-labelledby="yellowHeading">
       <div class="container">
 
         <p class="section-label">
           Yellow
         </p>
 
-        <h2>
+        <h2 id="yellowHeading">
           Yellow 컬러푸드
         </h2>
 
         <p>
-          레몬·감귤류 등의 대표 식품과 주요 영양정보를 소개합니다.
+          레몬·감귤류를 중심으로 대표 식품, 주요 영양정보와
+          생활 속 활용 예시를 함께 살펴봅니다.
+        </p>
+
+        <div class="color-detail-grid">
+          <article class="color-info-card">
+            <h3>대표 식품</h3>
+            <p>레몬 · 감귤류</p>
+          </article>
+
+          <article class="color-info-card">
+            <h3>주요 영양정보</h3>
+            <ul>
+              <li>비타민 C</li>
+              <li>플라보노이드</li>
+            </ul>
+          </article>
+
+          <article class="color-info-card">
+            <h3>생활 속 활용 예시</h3>
+            <ul>
+              <li>감귤류를 간식이나 식사 후 과일로 활용하기</li>
+              <li>레몬을 물이나 샐러드 드레싱 등에 소량 활용하기</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="food-info-note">
+          식품 선택은 개인의 알레르기, 소화 상태와 평소 식생활을 함께 고려해 주세요.
         </p>
 
       </div>
@@ -683,19 +767,46 @@
     <!-- ========================================
          07. Purple
     ========================================= -->
-    <section id="purple" class="section color-section">
+    <section id="purple" class="section color-section" aria-labelledby="purpleHeading">
       <div class="container">
 
         <p class="section-label">
           Purple
         </p>
 
-        <h2>
+        <h2 id="purpleHeading">
           Purple 컬러푸드
         </h2>
 
         <p>
-          블루베리·포도 등의 대표 식품과 주요 영양정보를 소개합니다.
+          블루베리·포도를 중심으로 대표 식품, 주요 영양정보와
+          생활 속 활용 예시를 함께 살펴봅니다.
+        </p>
+
+        <div class="color-detail-grid">
+          <article class="color-info-card">
+            <h3>대표 식품</h3>
+            <p>블루베리 · 포도</p>
+          </article>
+
+          <article class="color-info-card">
+            <h3>주요 영양정보</h3>
+            <ul>
+              <li>안토시아닌</li>
+            </ul>
+          </article>
+
+          <article class="color-info-card">
+            <h3>생활 속 활용 예시</h3>
+            <ul>
+              <li>블루베리를 요거트나 오트밀에 곁들이기</li>
+              <li>포도를 간식으로 활용하기</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="food-info-note">
+          식품 선택은 개인의 알레르기, 소화 상태와 평소 식생활을 함께 고려해 주세요.
         </p>
 
       </div>
@@ -705,19 +816,47 @@
     <!-- ========================================
          08. Red
     ========================================= -->
-    <section id="red" class="section color-section">
+    <section id="red" class="section color-section" aria-labelledby="redHeading">
       <div class="container">
 
         <p class="section-label">
           Red
         </p>
 
-        <h2>
+        <h2 id="redHeading">
           Red 컬러푸드
         </h2>
 
         <p>
-          체리·복분자·토마토·사과 등의 대표 식품과 주요 영양정보를 소개합니다.
+          체리·복분자·토마토·사과를 중심으로 대표 식품,
+          주요 영양정보와 생활 속 활용 예시를 함께 살펴봅니다.
+        </p>
+
+        <div class="color-detail-grid">
+          <article class="color-info-card">
+            <h3>대표 식품</h3>
+            <p>체리 · 복분자 · 토마토 · 사과</p>
+          </article>
+
+          <article class="color-info-card">
+            <h3>주요 영양정보</h3>
+            <ul>
+              <li>안토시아닌</li>
+              <li>라이코펜</li>
+            </ul>
+          </article>
+
+          <article class="color-info-card">
+            <h3>생활 속 활용 예시</h3>
+            <ul>
+              <li>토마토를 샐러드나 반찬에 곁들이기</li>
+              <li>사과를 간식이나 식사와 함께 활용하기</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="food-info-note">
+          식품 선택은 개인의 알레르기, 소화 상태와 평소 식생활을 함께 고려해 주세요.
         </p>
 
       </div>
@@ -727,19 +866,47 @@
     <!-- ========================================
          09. Green
     ========================================= -->
-    <section id="green" class="section color-section">
+    <section id="green" class="section color-section" aria-labelledby="greenHeading">
       <div class="container">
 
         <p class="section-label">
           Green
         </p>
 
-        <h2>
+        <h2 id="greenHeading">
           Green 컬러푸드
         </h2>
 
         <p>
-          키위·아보카도·멜론 등의 대표 식품과 주요 영양정보를 소개합니다.
+          키위·아보카도·멜론을 중심으로 대표 식품,
+          주요 영양정보와 생활 속 활용 예시를 함께 살펴봅니다.
+        </p>
+
+        <div class="color-detail-grid">
+          <article class="color-info-card">
+            <h3>대표 식품</h3>
+            <p>키위 · 아보카도 · 멜론</p>
+          </article>
+
+          <article class="color-info-card">
+            <h3>주요 영양정보</h3>
+            <ul>
+              <li>비타민 C · 비타민 E</li>
+              <li>엽산 · 칼륨 · 식이섬유</li>
+            </ul>
+          </article>
+
+          <article class="color-info-card">
+            <h3>생활 속 활용 예시</h3>
+            <ul>
+              <li>키위를 간식이나 요거트에 곁들이기</li>
+              <li>아보카도를 샐러드나 샌드위치에 활용하기</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="food-info-note">
+          식품 선택은 개인의 알레르기, 소화 상태와 평소 식생활을 함께 고려해 주세요.
         </p>
 
       </div>
@@ -749,14 +916,14 @@
     <!-- ========================================
          10. Whole Food
     ========================================= -->
-    <section id="whole-food" class="section">
+    <section id="whole-food" class="section" aria-labelledby="wholeFoodHeading">
       <div class="container">
 
         <p class="section-label">
           Whole Food
         </p>
 
-        <h2>
+        <h2 id="wholeFoodHeading">
           Whole Food
         </h2>
 
@@ -777,14 +944,14 @@
     <!-- ========================================
          11. Whole Grain
     ========================================= -->
-    <section id="whole-grain" class="section">
+    <section id="whole-grain" class="section" aria-labelledby="wholeGrainHeading">
       <div class="container">
 
         <p class="section-label">
           Whole Grain
         </p>
 
-        <h2>
+        <h2 id="wholeGrainHeading">
           Whole Grain
         </h2>
 
@@ -800,14 +967,14 @@
     <!-- ========================================
          12. Nutrition
     ========================================= -->
-    <section id="nutrition" class="section">
+    <section id="nutrition" class="section" aria-labelledby="nutritionHeading">
       <div class="container">
 
         <p class="section-label">
           Nutrition
         </p>
 
-        <h2>
+        <h2 id="nutritionHeading">
           주요 영양정보
         </h2>
 
@@ -823,14 +990,14 @@
     <!-- ========================================
          13. My Foods
     ========================================= -->
-    <section id="my-foods" class="section">
+    <section id="my-foods" class="section" aria-labelledby="myFoodsHeading">
       <div class="container">
 
         <p class="section-label">
           My Foods
         </p>
 
-        <h2>
+        <h2 id="myFoodsHeading">
           저장한 추천 식품
         </h2>
 
@@ -849,14 +1016,14 @@
     <!-- ========================================
          14. About
     ========================================= -->
-    <section id="about" class="section">
+    <section id="about" class="section" aria-labelledby="aboutHeading">
       <div class="container">
 
         <p class="section-label">
           About
         </p>
 
-        <h2>
+        <h2 id="aboutHeading">
           서비스 소개
         </h2>
 
@@ -879,14 +1046,14 @@
     <!-- ========================================
          15. FAQ
     ========================================= -->
-    <section id="faq" class="section">
+    <section id="faq" class="section" aria-labelledby="faqHeading">
       <div class="container">
 
         <p class="section-label">
           FAQ
         </p>
 
-        <h2>
+        <h2 id="faqHeading">
           자주 묻는 질문
         </h2>
 
@@ -972,7 +1139,7 @@
   </footer>
 
 
-  <script src="js/main.js"></script>
+  <script type="module" src="js/main.js"></script>
 
 </body>
 </html>

@@ -872,7 +872,7 @@ AI 응답의 JSON 구조와 필요한 Key를 먼저 검증한 뒤 검증된 값�
 
 - Provider: OpenAI
 
-- Model: `gpt-5.6-luna`
+- Model: 기본값 `gpt-6-luna` (`AI_MODEL` 환경변수로 교체 가능)
 
 - Python SDK: OpenAI
 
@@ -889,36 +889,40 @@ AI 응답의 JSON 구조와 필요한 Key를 먼저 검증한 뒤 검증된 값�
 ## 11. 프로젝트 구조
 
 ```text
-
 body-signal-color-food/
-
 ├── index.html
-
 ├── css/
-
-│   └── style.css
-
+│   └── style.css
 ├── js/
-
-│   └── main.js
-
+│   ├── main.js          # 초기 실행
+│   ├── navigation.js    # Navigation / Mobile Menu
+│   ├── form.js          # 사용자 입력 수집과 Form 처리
+│   ├── validation.js    # Frontend 입력·응답 검증
+│   ├── api.js           # /api/recommend 호출과 Timeout 처리
+│   ├── result.js        # AI 결과 안전한 화면 출력
+│   ├── storage.js       # My Foods localStorage 저장
+│   ├── utils.js         # debounce 등 공통 Utility
+│   └── config.js        # Frontend 공통 설정값
 ├── api/
-
-│   └── recommend.py
-
+│   ├── __init__.py
+│   ├── recommend.py     # FastAPI / Vercel Serverless Endpoint
+│   ├── validation.py    # Backend 입력·AI 응답 검증
+│   ├── ai_service.py    # OpenAI Client와 API 호출
+│   ├── prompt.py        # AI Prompt 구성
+│   └── config.py        # 기준 데이터·Schema·설정값
 ├── images/
-
-│   └── [실제 사용한 이미지 파일]
-
+│   └── [실제 사용한 이미지 파일]
+├── offline/
+│   └── color-food-guide-offline.html  # Vercel·Python·AI API 없이 실행하는 단일 HTML 규칙 기반 버전
 ├── requirements.txt
-
+├── pyproject.toml
 ├── .env.example
-
 ├── .gitignore
-
 ├── README.md
-
 └── SERVICE_PLAN.md
+```
+
+Frontend와 Backend 모두 역할에 따라 파일을 나누어, 기능을 수정할 때 관련 코드의 위치를 쉽게 찾을 수 있도록 구성하였다.
 
 ## 12. Frontend ↔ Backend 연동 구조
 
@@ -1130,6 +1134,32 @@ Page / Section 이동, 사용자 입력, OpenAI API 호출 및 AI 결과 출력�
 
 
 
+### 13.8 오프라인 단일 HTML 버전
+
+Vercel 배포, Python Backend, OpenAI API 호출 없이도 서비스의 기본 흐름을 확인할 수 있도록
+규칙 기반 오프라인 단일 HTML 버전을 함께 제공한다.
+
+- 프로젝트 내 상대 경로: `offline/color-food-guide-offline.html`
+- Windows 로컬 경로: `C:\Python-Workspace\body-signal-color-food\offline\color-food-guide-offline.html`
+- 실행 방법: `color-food-guide-offline.html` 파일을 Chrome, Edge 등의 Browser에서 직접 연다.
+- Vercel 배포: 불필요
+- Python/FastAPI 실행: 불필요
+- `AI_API_KEY`: 불필요
+- 외부 AI API 호출: 없음
+- 인터넷 연결: 기본 기능 사용에는 불필요
+- 저장 기능: Browser의 `localStorage`를 사용하며, `file://` 환경에서 저장소 사용이 제한되는 경우 현재 탭의 메모리 저장으로 동작한다.
+
+오프라인 버전은 온라인 AI 서비스의 대체물이 아니라 **규칙 기반 체험·보조 버전**이다.
+Yellow·Purple·Red·Green별로 프로젝트에 미리 정리된 식품·영양정보를 사용하고,
+사용자 입력에 따라 추천 Color와 대표 식품을 선택하여 식생활 참고 정보를 조합한다.
+따라서 새로운 설명을 AI가 생성하거나 OpenAI API에 요청을 보내지 않는다.
+
+또한 추천 결과의 시각적 구분을 강화하기 위해 추천 Color가 `Green`이면 결과 영역을 녹색 계열,
+`Yellow`이면 노란색 계열, `Purple`이면 보라색 계열, `Red`이면 빨간색 계열로 자동 표시한다.
+예를 들어 대표 식품으로 아보카도가 선택되고 추천 Color가 `Green`이면
+`오늘의 식생활 안내서` 주변의 배경·테두리·제목 강조색도 Green 계열로 표시된다.
+
+
 ## 14. 환경변수 관리
 
 ### 필요한 환경변수
@@ -1139,6 +1169,7 @@ Page / Section 이동, 사용자 입력, OpenAI API 호출 및 AI 결과 출력�
 |---|---|
 
 | `AI_API_KEY` | Python Backend에서 OpenAI API를 호출할 때 사용하는 인증 정보 |
+| `AI_MODEL` | 선택 사항. 사용할 OpenAI API 모델을 지정하며 미설정 시 `gpt-6-luna` 사용 |
 
 ### 로컬 환경변수 설정 방법
 
@@ -1706,18 +1737,19 @@ Desktop과 Mobile 반응형 화면을 추가로 확인하였다.
 | Vercel Build 실패 | `pyproject.toml`에 `[project]` 정보가 없음 | Python Project Metadata와 Dependencies 추가 후 재배포 |
 | GitHub Repository Import 불가 | Vercel GitHub App 권한 미설정 | 해당 Repository에 GitHub App 접근 권한 부여 |
 
-### 기능 확장 시 고려사항
+### 기능 확장 및 유지보수 구조
 
-현재 프로젝트는 HTML·CSS·JavaScript Frontend와 FastAPI 기반 Python Backend를 분리하여 구성하였다.
+초기 구현에서는 `js/main.js`와 `api/recommend.py`에 여러 역할이 함께 들어 있었으나,
+동료평가에서 받은 유지보수성 개선 의견을 반영하여 Frontend와 Backend를 실제로 기능별 모듈로 분리하였다.
 
-향후 기능이 증가하는 경우 하나의 파일에 모든 기능을 계속 추가하기보다
-입력 검증, AI 요청, 응답 검증, 식생활 기준 데이터 등의 역할을 기능별로 분리하여 관리하는 방식을 고려한다.
+#### 적용한 모듈화
 
-#### 모듈화
+- Frontend는 Navigation, Form 처리, 입력·응답 검증, API 호출, 결과 출력, 저장 기능을 각각 분리하였다.
+- Backend는 Endpoint, 입력·AI 응답 검증, AI 호출, Prompt, 기준 데이터와 설정값을 각각 분리하였다.
+- `api/recommend.py`는 Vercel 진입점(`api.recommend:app`)을 그대로 유지하여 기존 배포 설정과의 호환성을 유지하였다.
+- 컬러푸드 기준 데이터와 생활 속 활용 예시는 `api/config.py`에서 한 곳에 관리하도록 구성하였다.
 
-- AI 요청 처리와 입력 검증 로직을 기능별로 분리한다.
-- 컬러푸드·Whole Food·Whole Grain 등의 기준 데이터도 별도 모듈 또는 데이터 파일로 관리할 수 있다.
-- 기능이 추가되더라도 기존 기능 전체를 수정하지 않고 필요한 부분만 변경할 수 있도록 구성한다.
+이 구조에서는 오류가 발생하거나 기능을 추가할 때 전체 파일을 찾는 대신 해당 역할의 모듈을 먼저 확인할 수 있다.
 
 #### 성능
 
@@ -1778,3 +1810,144 @@ AI와의 전체 작업 과정 Screenshot은 `images/ai-coding-process/` 폴더�
 ![Vercel Environment Variable 확인](./images/ai-coding-process/06.%20VercelEnvironmentVariable확인.jpg)
 
 ![Vercel Mobile 390x844 검증 방법](./images/ai-coding-process/11.%20VercelMobile390x844검증방법.jpg)
+
+
+## 24. 동료평가 의견 반영 개선
+
+동료평가에서 과제의 필수 기능과 배포·검증·문서화는 충분히 구현되었다는 평가를 받았고,
+추가 개선 의견 중 실제 서비스의 유지보수성과 정보 전달력을 높이는 내용을 중심으로 반영하였다.
+
+### 24.1 JavaScript·Python 기능별 모듈화
+
+초기에는 `js/main.js`와 `api/recommend.py`의 크기가 커지면서
+Navigation, 입력 검증, AI 호출, 결과 출력, 저장 기능 등의 역할이 한 파일에 함께 존재하였다.
+
+이번 개선에서는 다음 원칙으로 역할을 분리하였다.
+
+```text
+Frontend
+사용자 입력
+  ↓
+form.js
+  ↓
+validation.js
+  ↓
+api.js
+  ↓
+result.js
+  ↓
+storage.js
+
+Backend
+recommend.py
+  ↓
+validation.py
+  ↓
+ai_service.py
+  ├─ prompt.py
+  └─ config.py
+```
+
+`main.js`는 각 기능을 초기화하는 역할만 담당하며,
+`recommend.py`는 HTTP 요청을 받고 검증된 결과를 반환하는 Endpoint 역할에 집중한다.
+
+### 24.2 컬러푸드 UI와 정보 활용성 강화
+
+기존에도 Yellow·Purple·Red·Green의 색상별 배경과 카드 구분을 적용했으나,
+각 상세 Section에서 대표 식품만 간단히 소개하던 부분을 보완하였다.
+
+각 컬러 상세 화면에는 다음 정보를 함께 제공한다.
+
+- 대표 식품
+- 주요 영양정보
+- 생활 속 활용 예시
+- 알레르기·소화 상태·평소 식생활을 함께 고려하도록 안내하는 문구
+
+이 변경은 특정 식품의 치료 효과를 설명하려는 목적이 아니라,
+사용자가 추천 결과를 실제 식생활에서 어떻게 참고할 수 있는지 이해하기 쉽게 만드는 데 목적이 있다.
+
+오프라인 단일 HTML 버전에서는 이 개선 방향을 결과 화면에도 확대하여,
+추천 Color에 따라 Result Section의 배경·테두리·제목 강조색이 Yellow·Purple·Red·Green 계열로 자동 변경되도록 하였다.
+예를 들어 `Green`과 `아보카도`가 추천되면 결과 영역도 연한 Green 계열로 표시되어
+추천 내용과 화면의 시각적 의미가 바로 연결된다.
+
+### 24.3 서비스 동작 원리
+
+```text
+사용자가 생활 속 이상 신호 등 몸 상태와 식생활 정보 입력
+        ↓
+form.js에서 입력값 수집
+        ↓
+validation.js에서 Frontend 1차 검증
+        ↓
+api.js의 fetch("/api/recommend")
+        ↓
+Vercel Serverless Function / FastAPI
+        ↓
+validation.py에서 Backend 2차 검증
+        ↓
+ai_service.py가 환경변수 AI_API_KEY로 OpenAI API 호출
+        ↓
+validation.py에서 AI JSON 구조와 서비스 기준값 검증
+        ↓
+result.js가 textContent 기반으로 안전하게 화면 출력
+        ↓
+사용자가 원하면 storage.js가 My Foods에 저장
+```
+
+#### 왜 Frontend와 Backend에서 두 번 검증하는가?
+
+Frontend 검증은 사용자가 잘못된 값을 입력했을 때 빠르게 안내하여 사용성을 높이기 위한 것이다.
+하지만 Browser에서 보내는 요청은 개발자 도구나 별도의 HTTP Client를 사용하여 변경할 수 있으므로,
+Backend는 Frontend 검증 여부와 관계없이 입력값을 다시 확인해야 한다.
+
+#### 왜 API Key를 JavaScript에 넣지 않는가?
+
+Frontend JavaScript는 Browser에서 사용자에게 전달되는 코드이므로
+API Key를 작성하면 개발자 도구나 Network 요청 등을 통해 노출될 수 있다.
+따라서 실제 Key는 Vercel Environment Variables의 `AI_API_KEY`에 저장하고
+Python Backend에서만 읽도록 구성한다.
+
+#### Vercel Serverless Function은 언제 실행되는가?
+
+이 프로젝트에서는 사용자가 AI Food Guide를 요청해 `/api/recommend`로 HTTP 요청을 보낼 때
+Vercel이 Python Backend Function을 실행하여 요청을 처리한다.
+개발자가 별도의 Server를 계속 직접 운영하는 방식이 아니라,
+Vercel이 요청 처리에 필요한 실행 환경을 관리한다.
+
+### 24.4 오류 처리와 복구 확인 항목
+
+| 확인 상황 | 사용자에게 보이는 처리 | 확인 목적 |
+|---|---|---|
+| 빈 필수 입력 | 몸 상태 선택 또는 기타 상태 입력 안내 | 불필요한 API 호출 방지 |
+| 잘못된 Backend 입력 | 400 응답과 이해하기 쉬운 안내 | Backend 재검증 확인 |
+| AI API 오류 | 잠시 후 다시 시도 안내 | 외부 API 실패 대응 |
+| Network Error | 네트워크 연결 확인 안내 | 통신 문제 구분 |
+| 15초 이상 지연 | 요청 중단 후 Timeout 안내 | 무한 대기 방지 |
+| 잘못된 AI JSON | 결과를 표시하지 않고 Error 처리 | 화면 깨짐 방지 |
+| 오류 테스트 종료 후 | 정상 입력으로 다시 결과 생성 | 복구 가능 여부 확인 |
+
+### 24.5 AI와 코드의 역할 구분
+
+이 서비스에서는 정확한 형식과 규칙을 확인해야 하는 부분은 코드로 검증하고,
+사용자의 상황에 맞게 설명을 구성해야 하는 부분은 AI가 담당하도록 역할을 나누었다.
+
+- 코드: 입력값 허용 범위, 필수 항목, Color와 대표 식품의 일치 여부, JSON 구조 검증
+- AI: 검증된 기준 데이터 안에서 사용자 입력에 맞는 추천 이유와 식생활 안내 문구 생성
+
+즉, **정확하거나 규칙적인 판단은 코드가 확인하고, 유연한 설명과 안내는 AI가 담당하는 구조**를 유지한다.
+
+
+### 24.6 추가 코드 리뷰 반영
+
+후속 코드 리뷰에서 확인된 유지보수성과 접근성 개선 사항도 반영하였다.
+
+- Backend AI 응답 문자열과 배열에 길이·개수 상한을 추가하여 비정상적으로 긴 AI 응답을 차단한다.
+- `Content-Length`는 큰 요청의 조기 차단에만 사용하고, 실제 본문을 읽은 뒤 빈 요청과 실제 Byte 크기를 다시 확인한다.
+- AI 응답이 서비스 계약을 지키지 못한 경우 사용자 입력 오류와 구분하여 `502` 응답으로 처리한다.
+- 저장 항목 식별 Key는 구분자 결합 대신 `JSON.stringify()`를 사용하여 특수문자 충돌 가능성을 없앴다.
+- 저장 실패 안내 Timer는 이전 Timer를 취소한 뒤 새 Timer를 등록하여 빠른 연속 동작 시 상태가 덮어써지는 문제를 방지한다.
+- Result Card의 전체 폭 Layout은 `nth-child` 순서 대신 `.result-card--full` 역할 Class로 지정한다.
+- 각 `section`은 내부 Heading과 `aria-labelledby`로 연결하고, Body Signal Checkbox는 `ul`/`li` 목록으로 구성하여 보조기술이 항목 수와 구조를 이해하기 쉽게 했다.
+- 컬러푸드 정보 카드의 반복 RGBA 값은 CSS 변수로 옮기고, Color Detail Breakpoint는 `760px` 기준으로 통일하였다.
+- OpenAI API 모델은 현재 공개 API 기준 기본값을 `gpt-6-luna`로 갱신하고 `AI_MODEL` 환경변수로 변경할 수 있게 했다.
