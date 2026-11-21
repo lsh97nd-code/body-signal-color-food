@@ -1139,6 +1139,28 @@
   </footer>
 
 
+  <script>
+    if (window.location.protocol === "file:") {
+      const directFileForm = document.getElementById("bodySignalForm");
+      const directFileError = document.getElementById("formError");
+
+      directFileForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        if (!directFileError) {
+          return;
+        }
+
+        directFileError.textContent =
+          "AI Food Guide는 API 서버와 함께 실행해야 합니다. "
+          + "index.html 파일을 직접 열지 말고 "
+          + "http://localhost:8001/에서 이용해 주세요.";
+        directFileError.hidden = false;
+        directFileError.focus();
+      });
+    }
+  </script>
+
   <script type="module" src="js/main.js"></script>
 
 </body>
